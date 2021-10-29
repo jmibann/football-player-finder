@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../redux';
 import { setFilterParams, setFilteredPlayers } from '../../redux/reducer';
@@ -25,30 +25,6 @@ const Filters: React.FC<FiltersType> = ({ dropDownOptions }) => {
   const filterParams = useAppSelector((state) => state.filters.params);
 
   const { name, age, position } = filterParams;
-
-  const searchResult = () => {
-    const byAge = Boolean(age);
-    const byName = Boolean(name.length);
-    const byPosition = Boolean(position.length);
-
-    const isSearching = byName || byPosition || byAge;
-
-    if (isSearching) {
-      let searchResult: PlayerType[] = [];
-
-      if (byAge) searchResult = [...filterByAge(Number(age), players)];
-      if (byName) searchResult = [...filterByName(name, players)];
-      if (byPosition) searchResult = [...filterByPosition(position, players)];
-
-      console.log('==========> byPosition: ', byPosition)
-
-      dispatch(setFilteredPlayers({ filteredPlayers: searchResult }));
-    }
-  }
-
-  useEffect(() => {
-    searchResult()
-  }, [position, searchResult]);
 
   const resetAge = () => {
     const updatedParams = Object.assign({}, filterParams, { age: '' });
@@ -87,7 +63,34 @@ const Filters: React.FC<FiltersType> = ({ dropDownOptions }) => {
     event.preventDefault();
     const updatedParams = Object.assign({}, filterParams, { position: event.target.value });
     dispatch(setFilterParams({ params: updatedParams }));
-  }
+
+    const searchResult = [...filterByPosition(event.target.value, players)];
+    dispatch(setFilteredPlayers({ filteredPlayers: searchResult }));
+  };
+
+  const searchResult = () => {
+    const byAge = Boolean(age);
+    const byName = Boolean(name.length);
+    const byPosition = Boolean(position.length);
+
+    const isSearchingBy = byName || byPosition || byAge;
+
+    if (isSearchingBy) {
+      let searchResult: PlayerType[] = [...players];
+
+      if (byAge) searchResult = [...filterByAge(Number(age), searchResult)];
+      if (byName) searchResult = [...filterByName(name, searchResult)];
+      if (byPosition) searchResult = [...filterByPosition(position, searchResult)];
+
+      dispatch(setFilteredPlayers({ filteredPlayers: searchResult }));
+    }
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      searchResult();
+    }
+  };
 
   return (
     <Fragment>
@@ -96,6 +99,7 @@ const Filters: React.FC<FiltersType> = ({ dropDownOptions }) => {
         name="name"
         value={filterParams.name}
         onChange={handleChange}
+        onKeyDown={handleKeyPress}
       />
       <Select
         options={dropDownOptions}
@@ -107,6 +111,7 @@ const Filters: React.FC<FiltersType> = ({ dropDownOptions }) => {
         value={filterParams.age === 0 ? '' : filterParams.age}
         placeholder="Age"
         onChange={handleAge}
+        onKeyDown={handleKeyPress}
       />
       <Button>Search</Button>
     </Fragment>

@@ -40,7 +40,7 @@ export const filterByAge = (age: number, array: PlayerType[]) =>
   array.filter((player) => age === getAge(player.dateOfBirth));
 
 export const filterByName = (name: string, array: PlayerType[]) =>
-  array.filter((player) => player?.name?.includes(name));
+  array.filter((player) => player?.name?.toLowerCase().includes(name.toLowerCase()));
 
 export const filterByPosition = (position: string, array: PlayerType[]) =>
-  array.filter((player) => player?.position?.includes(position));
+  array.filter((player) => player?.position?.toLowerCase()?.includes(position.toLowerCase()));

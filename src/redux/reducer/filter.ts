@@ -7,6 +7,7 @@ type FilterStateType = {
     age: number | string;
     name: string;
     position: string;
+    isSearchingActive: boolean;
   }
 }
 
@@ -15,6 +16,7 @@ const initialState: FilterStateType = {
     age: 0,
     name: '',
     position: '',
+    isSearchingActive: false,
   }
 };
 
@@ -24,7 +26,16 @@ export const filterSlice = createSlice({
   reducers: {
     setFilterParams:
       (state, action: PayloadAction<FilterStateType>) => {
+
+        const { name, age, position } = action.payload.params;
+        const byAge = Boolean(age);
+        const byName = Boolean(name.length);
+        const byPosition = Boolean(position.length);
+
+        const isSearchingActive = byName || byPosition || byAge;
+
         state.params = action.payload.params;
+        state.params.isSearchingActive = isSearchingActive;
       },
   },
 });
